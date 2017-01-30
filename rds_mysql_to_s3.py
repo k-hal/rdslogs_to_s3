@@ -25,6 +25,7 @@ REGION=''
 def lambda_handler(event, context):
 	firstRun = False
 	logFileData = ""
+	date = datetime.utcnow().strftime("%Y%m%d")
 	if {'BucketName','S3BucketPrefix','RDSInstanceName','LogNamePrefix','lastRecievedFile','Region'}.issubset(event):
 		S3BucketName = event['BucketName']	
 		S3BucketPrefix = event['S3BucketPrefix']
@@ -77,7 +78,7 @@ def lambda_handler(event, context):
 				logFileData += logFile['LogFileData']
 			byteData = str.encode(logFileData)
 			try:
-				objectName = S3BucketPrefix + dbLog['LogFileName']
+				objectName = S3BucketPrefix + date + '/' + dbLog['LogFileName']
 				S3response = S3client.put_object(Bucket=S3BucketName, Key=objectName,Body=byteData)
 			except botocore.exceptions.ClientError as e:
 				return "Error writting object to S3 bucket, S3 ClientError: " + e.response['Error']['Message']
